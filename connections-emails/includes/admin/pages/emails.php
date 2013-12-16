@@ -41,11 +41,12 @@ function connectionsEmailsPage()
 				case 'send_email' :
 					echo "emails sent";
 				break;
+				
 
 				case 'set_up_email' :
 					
 					$attr = array(
-						'action'  => 'admin.php?page=connections_email&action=send_email',
+						'action'  => 'admin.php?page=connections_emails&action=send_email',
 						'method'  => 'post',
 						'enctype' => 'multipart/form-data',
 						);
@@ -64,7 +65,7 @@ function connectionsEmailsPage()
 				case 'start':
 
 					$attr = array(
-						'action'  => 'admin.php?page=connections_email&action=set_up_email',
+						'action'  => 'admin.php?page=connections_emails&action=set_up_email',
 						'method'  => 'post',
 						'enctype' => 'multipart/form-data',
 						);
