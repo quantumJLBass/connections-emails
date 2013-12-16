@@ -91,7 +91,7 @@ function connectionsEmailsPage()
 
 			echo '<div class="wrap">';
 			echo get_screen_icon( 'connections' );
-			echo '<h2>Connections : ' , __( 'Manage', 'connections' ) , ' <a class="button add-new-h2" href="admin.php?page=connections_add">' , __( 'Add New', 'connections' ) , '</a></h2>';
+			echo '<h2>Connections : ' , __( 'Emails', 'connections' ) , '</h2>';
 
 			/*
 			 * Check whether user can view the entry list
@@ -145,13 +145,13 @@ function connectionsEmailsPage()
 				<?php } ?>
 
 				<form method="post">
-
+<!--
 					<p class="search-box">
 						<label class="screen-reader-text" for="post-search-input"><?php _e( 'Search Entries', 'connections' ); ?>:</label>
 						<input type="text" id="entry-search-input" name="s" value="<?php if ( isset( $_GET['s'] ) && ! empty( $_GET['s'] ) ) echo $_GET['s'] ; ?>" />
 						<input type="submit" name="" id="search-submit" class="button" value="<?php _e( 'Search Entries', 'connections' ); ?>"  />
 					</p>
-
+-->
 					<?php $form->tokenField( 'cn_manage_actions' ); ?>
 
 					<input type="hidden" name="cn-action" value="manage_actions"/>
@@ -266,7 +266,7 @@ function connectionsEmailsPage()
 
 						if ( current_user_can( 'connections_edit_entry' ) || current_user_can( 'connections_delete_entry' ) ) {
 							echo '<div class="alignleft actions">';
-							echo '<select name="action">';
+							/*echo '<select name="action">';
 							echo '<option value="" SELECTED>' , __( 'Bulk Actions', 'connections' ) , '</option>';
 
 							$bulkActions = array();
@@ -289,8 +289,8 @@ function connectionsEmailsPage()
 								echo '<option value="', $action, '">', $string, '</option>';
 							}
 
-							echo '</select>';
-							echo '<input class="button-secondary action" type="submit" name="bulk_action" value="' , __( 'Apply', 'connections' ) , '" />';
+							echo '</select>';*/
+							echo '<input class="button-secondary action" type="submit" name="bulk_action" value="' , __( 'Start Email process', 'connections' ) , '" />';
 							echo '</div>';
 						}
 						?>
