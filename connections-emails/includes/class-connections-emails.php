@@ -15,7 +15,16 @@ if (!class_exists('Connections_Emails')) {
             if (is_admin()) {
                 add_action('plugins_loaded', array( $this, 'start' ));
                 add_filter('cn_submenu', array(  __CLASS__, 'addMenu' ));
+				
+				// Register the metabox and fields.
+				add_action( 'cn_metabox', array( __CLASS__, 'registerMetabox') );
+
+				// Business Hours uses a custom field type, so let's add the action to add it.
+				add_action( 'cn_meta_field-last_emailed', array( __CLASS__, 'field' ), 10, 2 );
+				// Business Hours uses a custom field type, so let's add the action to add it.
+				add_action( 'cn_meta_field-level', array( __CLASS__, 'field' ), 10, 2 );
             }
+			add_action( 'cn_meta_output_field-cnemail', array( __CLASS__, 'block' ), 10, 3 );
         }
         public function start() {
             if (class_exists('connectionsLoad')) {
@@ -40,6 +49,8 @@ if (!class_exists('Connections_Emails')) {
         }
         public function init() {
         }
+		public static function loadTextdomain() {//come back to 
+		}
         /**
          * Adds the menu as a sub item of Connections.
          *
@@ -79,6 +90,49 @@ if (!class_exists('Connections_Emails')) {
                     break;
             }
         }
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		public static function registerMetabox( $metabox ) {
+			$atts = array(
+				'id'       => 'last-emailed',
+				'title'    => __( 'Last Email Sent', 'sent_datetime' ),
+				'context'  => 'side',
+				'priority' => 'core',
+				'fields'   => array(
+						array(
+								'id'    => 'cnemail',
+								'type'  => 'last_emailed',
+								),
+						),
+				);
+			$metabox::add( $atts );
+			$atts = array(
+				'id'       => 'level',
+				'title'    => __( 'Level', 'level' ),
+				'context'  => 'side',
+				'priority' => 'core',
+				'fields'   => array(
+						array(
+								'id'    => 'cnemail',
+								'type'  => 'level',
+								),
+						),
+				);
+			$metabox::add( $atts );
+			
+			
+		}
+
+		
+		
+		
         /**
          * Register the settings sections.
          *
