@@ -67,7 +67,9 @@ function connectionsEmailsPage()
 
 
 				case 'start':
-
+					?><!-- <?php
+					// note this is just the shell actino test stuff
+					// remove when done
 					$attr = array(
 						'action'  => 'admin.php?page=connections_emails&action=set_up_email',
 						'method'  => 'post',
@@ -80,9 +82,17 @@ function connectionsEmailsPage()
 					?>
                     Here is your list, select what you want, then preceed to set your email up.
                     
-                    <p class="submit"><input class="button-primary" type="submit" name="submit_csv" value="set_up_email" /></p><?php
+                    <p class="submit"><input class="button-primary" type="submit" name="submit_csv" value="set_up_email" /></p>
+					
+					
+					<?php
 
 					$form->close();
+					//end
+					
+					?><!-- <?php
+					
+					
 			$form = new cnFormObjects();
 			$categoryObjects = new cnCategoryObjects();
 
