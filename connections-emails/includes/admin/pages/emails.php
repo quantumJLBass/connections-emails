@@ -34,10 +34,31 @@ function connectionsEmailsPage() {
 			$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : 'start' ;
 
 			switch ( $action ) {
-
 				case 'send_email' :
 					$subject=$_REQUEST['sub'];				
-					$measage=$_REQUEST['mess'];		
+					$measage=str_replace('\"','"',$_REQUEST['mess']);
+
+
+
+					$proccessOutput="";
+					$proccessOutput.="<div> <h3>Visual Output</h3>";
+						$proccessOutput.="<div><strong>Subject</strong>:<br/>".$subject."</div>";
+						$proccessOutput.="<div><strong>Message</strong>:<br/>".$measage."</div>";
+					$proccessOutput.="</div>";
+					$proccessOutput.="<div> <h3>Raw Output</h3>";
+						//using the buffer so we ca do a raw data dump
+						ob_start();
+						var_dump($subject);
+						$result = ob_get_clean();
+						$proccessOutput.="<div><strong>Subject</strong>:<br/>".$result."</div>";
+						
+						ob_start();
+						var_dump($measage);
+						$result = ob_get_clean();
+						$proccessOutput.="<div><strong>Subject</strong>:<br/>".$result."</div>";
+					$proccessOutput.="</div>";
+					
+					$proccessOutput.="<div> <h3>Recipent List</h3>";
 					/* the reason for the one by one is that there is a flaw in 
 					wp_mail where it will die and f the whole email list if the server
 					sends back a 503.5 error.*/
@@ -45,12 +66,11 @@ function connectionsEmailsPage() {
 						$entry = new cnEntry( $connections->retrieve->entry( $id ) );				
 						$email = new cnEmail;
 						// Set email to be sent as HTML.
-						$email->html();
+						$email->html(); // should be optional
 						// Set from whom the email is being sent.
 						$email->from( 'webmaster@wsu.edu', 'Name set in settings' );
 						// Send to multiple email addesses.
 						// Call for each address to which the email is to be sent.
-						
 						$emails=$entry->getEmailAddresses( array(), TRUE, TRUE );
 						$address =  "no email";	
 						if(count($emails)>1){
@@ -66,12 +86,12 @@ function connectionsEmailsPage() {
 							}
 						}elseif(count($emails)==1){
 							$emailObj = $emails[0];
-							var_dump($emailObj);
+							//var_dump($emailObj);
 							$address = $emailObj->address;
 						}
 
 						$email->to( $address, $entry->getName( array( 'format' => '%last%, %first%' ) ) );
-						echo "emails sent";
+						$proccessOutput.="<strong>".$address."</strong><br/>";
 						$email->subject( $subject );
 						$email->message( $measage );
 						// Send the email.
@@ -79,7 +99,11 @@ function connectionsEmailsPage() {
 						// The object can be completely reset for reuse to send a completely different email.
 						$email->clear();
 					}
-					echo "emails sent";
+					$proccessOutput.="</div>";
+					echo "<h2>Emails sent</h2>";
+					echo "<h3>0 issues found</h3>";//should be a test
+					echo $proccessOutput;
+					
 				break;
 				
 
@@ -96,7 +120,7 @@ function connectionsEmailsPage() {
 
 					?>
 	                Subject: <input type="text" name="sub" /><br/>
-                    Message: <textarea name="mess"></textarea>
+                    Message: <?php wp_editor( ' ', 'mess', array("teeny"=>true,"wpautop"=>false) ); ?>
                     <!--<input type="hidden" name="id[]" value="<?php echo implode(',',$_REQUEST['id'])?>" />-->
                     <p class="submit"><input class="button-primary" type="submit" name="submit_csv" value="send_email" /></p>
 					<hr/>
@@ -127,6 +151,27 @@ function connectionsEmailsPage() {
                                 $previousLetter = '';
                                 foreach ( $_REQUEST['id'] as $id ) {
                                     $entry = new cnEntry( $connections->retrieve->entry( $id ) );
+									$emails=$entry->getEmailAddresses( array(), TRUE, TRUE );
+									$email =  false;	
+									if(count($emails)>1){
+										$email = array_filter(
+											$emails,
+											function ($e) {
+												return $e->preferred == TRUE;
+											}
+										);
+										$emailObj = $email[0];
+										if(!empty($emailObj) && !empty($emailObj->address)){
+											$email = $emailObj->address;
+										}
+									}elseif(count($emails)==1){
+										$emailObj = $emails[0];
+										//var_dump($emailObj);
+										$email = $emailObj->address;
+									}
+									
+									
+									
                                     $currentLetter = strtoupper( mb_substr( $entry->getSortColumn(), 0, 1 ) );
                                     if ( $currentLetter != $previousLetter ) {
                                         $setAnchor = "<a name='$currentLetter'></a>";
@@ -134,31 +179,13 @@ function connectionsEmailsPage() {
                                     } else {
                                         $setAnchor = null;
                                     }
-                                    echo '<tr id="row-' , $entry->getId() , '" class="parent-row ">';
-                                    echo "<th class='check-column' scope='row'><input type='checkbox' value='" . $entry->getId() . "' name='id[]' ".(($entry->getId()==$id)?"checked":"")."/></th> \n";
+                                    echo '<tr id="row-' , $entry->getId() , '" class="parent-row '.( ($email==false)?"disable":"" ).'" '.( ($email==false)?"style='background:#e2e2e2;opacity: 0.5;'":"" ).'>';
+                                    echo "<th class='check-column' scope='row'><input type='checkbox' value='" . $entry->getId() . "' name='id[]' ".(($entry->getId()==$id && $email!=false)?"checked":"")."/></th> \n";
                                     echo '<td  colspan="2">';
                                         if ( $setAnchor ) echo $setAnchor;
                                         echo '<strong>' . $entry->getName( array( 'format' => '%last%, %first%' ) ) . '</strong>';
                                     echo "</td> \n";
                                     echo "<td > \n";
-										$emails=$entry->getEmailAddresses( array(), TRUE, TRUE );
-										$email =  "no email";	
-										if(count($emails)>1){
-											$email = array_filter(
-												$emails,
-												function ($e) {
-													return $e->preferred == TRUE;
-												}
-											);
-											$emailObj = $email[0];
-											if(!empty($emailObj) && !empty($emailObj->address)){
-												$email = $emailObj->address;
-											}
-										}elseif(count($emails)==1){
-											$emailObj = $emails[0];
-											var_dump($emailObj);
-											$email = $emailObj->address;
-										}
 										echo $email;
 										
 										//echo $entry->email;
@@ -443,7 +470,25 @@ function connectionsEmailsPage() {
 					 */
 					$entry = new cnvCard( $row );
 					$vCard =& $entry;
-
+					$emails=$entry->getEmailAddresses( array(), TRUE, TRUE );
+					$email =  false;	
+					if(count($emails)>1){
+						$email = array_filter(
+							$emails,
+							function ($e) {
+								return $e->preferred == TRUE;
+							}
+						);
+						$emailObj = $email[0];
+						if(!empty($emailObj) && !empty($emailObj->address)){
+							$email = $emailObj->address;
+						}
+					}elseif(count($emails)==1){
+						$emailObj = $emails[0];
+						//var_dump($emailObj);
+						$email = $emailObj->address;
+					}
+									
 					$currentLetter = strtoupper( mb_substr( $entry->getSortColumn(), 0, 1 ) );
 					if ( $currentLetter != $previousLetter ) {
 						$setAnchor = "<a name='$currentLetter'></a>";
@@ -475,8 +520,10 @@ function connectionsEmailsPage() {
 							break;
 					}
 
-					echo '<tr id="row-' , $entry->getId() , '" class="parent-row' . $statusClass .'">';
-					echo "<th class='check-column' scope='row'><input type='checkbox' value='" . $entry->getId() . "' name='id[]'/></th> \n";
+					echo '<tr id="row-' , $entry->getId() , '" class="parent-row' . $statusClass .' '.( ($email==false)?"disable":"" ).'"  '.( ($email==false)?" style='background:#e2e2e2;opacity: 0.35;' ":"" ).'>';
+					echo "<th class='check-column' scope='row'>";
+					echo ( ($email==false) ? "no email" : "<input type='checkbox' value='" . $entry->getId() . "' name='id[]' ".( ($email==false)?"disabled":"" )."/>" );
+					echo "</th> \n";
 					/*echo '<td>';
 					$entry->getImage( array( 'image' => 'photo' , 'preset' => 'thumbnail' , 'height' => 54 , 'width' => 80 , 'zc' => 2 , 'fallback' => array( 'type' => 'block' , 'string' => __( 'No Photo Available', 'connections' ) ) ) );
 					echo '</td>';*/
