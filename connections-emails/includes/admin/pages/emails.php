@@ -1,11 +1,6 @@
 <?php
-function connectionsEmailsPage()
-{
-	/*
-	 * Check whether user can edit roles
-	 */
+function connectionsEmailsPage() {
 	if ( ! current_user_can('connections_add_entry') ) {
-
 		wp_die('<p id="error-page" style="-moz-background-clip:border;
 				-moz-border-radius:11px;
 				background:#FFFFFF none repeat scroll 0 0;
@@ -18,7 +13,6 @@ function connectionsEmailsPage()
 				padding:1em 2em;
 				text-align:center;
 				width:700px">You do not have sufficient permissions to access this page.</p>');
-
 	} else {
 		global $wpdb, $connections, $connectionsEmails;
 
@@ -34,15 +28,57 @@ function connectionsEmailsPage()
 			<div id="icon-connections" class="icon32">
 		        <br />
 		    </div>
-
 			<h2>Connections : Emails</h2>
 		<?php
 
-			$action = isset( $_GET['action'] ) ? $_GET['action'] : 'start' ;
+			$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : 'start' ;
 
 			switch ( $action ) {
 
 				case 'send_email' :
+					$subject=$_REQUEST['sub'];				
+					$measage=$_REQUEST['mess'];		
+					/* the reason for the one by one is that there is a flaw in 
+					wp_mail where it will die and f the whole email list if the server
+					sends back a 503.5 error.*/
+					foreach ( $_REQUEST['id'] as $id ) {
+						$entry = new cnEntry( $connections->retrieve->entry( $id ) );				
+						$email = new cnEmail;
+						// Set email to be sent as HTML.
+						$email->html();
+						// Set from whom the email is being sent.
+						$email->from( 'webmaster@wsu.edu', 'Name set in settings' );
+						// Send to multiple email addesses.
+						// Call for each address to which the email is to be sent.
+						
+						$emails=$entry->getEmailAddresses( array(), TRUE, TRUE );
+						$address =  "no email";	
+						if(count($emails)>1){
+							$emails = array_filter(
+								$emails,
+								function ($e) {
+									return $e->preferred == TRUE;
+								}
+							);
+							$emailObj = $emails[0];
+							if(!empty($emailObj) && !empty($emailObj->address)){
+								$address = $emailObj->address;
+							}
+						}elseif(count($emails)==1){
+							$emailObj = $emails[0];
+							var_dump($emailObj);
+							$address = $emailObj->address;
+						}
+
+						$email->to( $address, $entry->getName( array( 'format' => '%last%, %first%' ) ) );
+						echo "emails sent";
+						$email->subject( $subject );
+						$email->message( $measage );
+						// Send the email.
+						$email->send();
+						// The object can be completely reset for reuse to send a completely different email.
+						$email->clear();
+					}
 					echo "emails sent";
 				break;
 				
@@ -58,8 +94,91 @@ function connectionsEmailsPage()
 					$form->open( $attr );
 					wp_nonce_field( 'cnemails-nonce-send_email', 'cncsv_nonce' );
 
-					?><p class="submit"><input class="button-primary" type="submit" name="submit_csv" value="send_email" /></p><?php
-
+					?>
+	                Subject: <input type="text" name="sub" /><br/>
+                    Message: <textarea name="mess"></textarea>
+                    <!--<input type="hidden" name="id[]" value="<?php echo implode(',',$_REQUEST['id'])?>" />-->
+                    <p class="submit"><input class="button-primary" type="submit" name="submit_csv" value="send_email" /></p>
+					<hr/>
+					<h3>As a reminder</h3>
+					<p>These emails list are going to be send the message above.</p>
+                    <div class="clear"></div>
+                    <table cellspacing="0" class="widefat connections">
+                        <thead>
+                            <tr>
+                                <th class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox" checked/></th>
+                                <!--<th class="col" style="width:10%;"></th>-->
+                                <th scope="col" colspan="2" style="width:40%;"><?php _e( 'Name', 'connections' ); ?></th>
+                                <th scope="col" style="width:30%;"><?php _e( 'Email', 'connections' ); ?></th>
+                                <th scope="col" style="width:20%;"><?php _e( 'Last Modified', 'connections' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th class="manage-column column-cb check-column" scope="col"><input type="checkbox" checked/></th>
+                                <!--<th class="col" style="width:10%;"></th>-->
+                                <th scope="col" colspan="2" style="width:40%;"><?php _e( 'Name', 'connections' ); ?></th>
+                                <th scope="col" style="width:30%;"><?php _e( 'Categories', 'connections' ); ?></th>
+                                <th scope="col" style="width:20%;"><?php _e( 'Last Modified', 'connections' ); ?></th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                            <?php
+                                $previousLetter = '';
+                                foreach ( $_REQUEST['id'] as $id ) {
+                                    $entry = new cnEntry( $connections->retrieve->entry( $id ) );
+                                    $currentLetter = strtoupper( mb_substr( $entry->getSortColumn(), 0, 1 ) );
+                                    if ( $currentLetter != $previousLetter ) {
+                                        $setAnchor = "<a name='$currentLetter'></a>";
+                                        $previousLetter = $currentLetter;
+                                    } else {
+                                        $setAnchor = null;
+                                    }
+                                    echo '<tr id="row-' , $entry->getId() , '" class="parent-row ">';
+                                    echo "<th class='check-column' scope='row'><input type='checkbox' value='" . $entry->getId() . "' name='id[]' ".(($entry->getId()==$id)?"checked":"")."/></th> \n";
+                                    echo '<td  colspan="2">';
+                                        if ( $setAnchor ) echo $setAnchor;
+                                        echo '<strong>' . $entry->getName( array( 'format' => '%last%, %first%' ) ) . '</strong>';
+                                    echo "</td> \n";
+                                    echo "<td > \n";
+										$emails=$entry->getEmailAddresses( array(), TRUE, TRUE );
+										$email =  "no email";	
+										if(count($emails)>1){
+											$email = array_filter(
+												$emails,
+												function ($e) {
+													return $e->preferred == TRUE;
+												}
+											);
+											$emailObj = $email[0];
+											if(!empty($emailObj) && !empty($emailObj->address)){
+												$email = $emailObj->address;
+											}
+										}elseif(count($emails)==1){
+											$emailObj = $emails[0];
+											var_dump($emailObj);
+											$email = $emailObj->address;
+										}
+										echo $email;
+										
+										//echo $entry->email;
+                                    echo "</td> \n";
+                                    echo '<td >';
+                                        echo '<strong>' . __( 'On', 'connections' ) . ':</strong> ' . $entry->getFormattedTimeStamp( 'm/d/Y g:ia' ) . '<br />';
+                                    echo "</td> \n";
+                                    echo "</tr> \n";
+                                }
+                            ?>
+                        </tbody>
+                    </table>
+			<?php		
+					
+					
+					
+					
+					
+					
+					
 					$form->close();
 					
 				break;
@@ -90,7 +209,7 @@ function connectionsEmailsPage()
 					$form->close();
 					//end
 					
-					?><!-- <?php
+					?> --><?php
 					
 					
 			$form = new cnFormObjects();
@@ -155,19 +274,14 @@ function connectionsEmailsPage()
 				<?php } ?>
 
 				<form method="post">
-<!--
 					<p class="search-box">
 						<label class="screen-reader-text" for="post-search-input"><?php _e( 'Search Entries', 'connections' ); ?>:</label>
 						<input type="text" id="entry-search-input" name="s" value="<?php if ( isset( $_GET['s'] ) && ! empty( $_GET['s'] ) ) echo $_GET['s'] ; ?>" />
 						<input type="submit" name="" id="search-submit" class="button" value="<?php _e( 'Search Entries', 'connections' ); ?>"  />
 					</p>
--->
 					<?php $form->tokenField( 'cn_manage_actions' ); ?>
-
-					<input type="hidden" name="cn-action" value="manage_actions"/>
-
+					<input type="hidden" name="cn-action" value="emails_actions"/>
 					<div class="tablenav">
-
 						<div class="alignleft actions">
 							<?php
 							echo '<select class="postform" id="category" name="category">';
@@ -276,30 +390,7 @@ function connectionsEmailsPage()
 
 						if ( current_user_can( 'connections_edit_entry' ) || current_user_can( 'connections_delete_entry' ) ) {
 							echo '<div class="alignleft actions">';
-							/*echo '<select name="action">';
-							echo '<option value="" SELECTED>' , __( 'Bulk Actions', 'connections' ) , '</option>';
-
-							$bulkActions = array();
-
-							if ( current_user_can( 'connections_edit_entry' )  || current_user_can( 'connections_edit_entry_moderated' ) ) {
-								$bulkActions['unapprove'] = __( 'Unapprove', 'connections' );
-								$bulkActions['approve']   = __( 'Approve', 'connections' );
-								$bulkActions['public']    = __( 'Set Public', 'connections' );
-								$bulkActions['private']   = __( 'Set Private', 'connections' );
-								$bulkActions['unlisted']  = __( 'Set Unlisted', 'connections' );
-							}
-
-							if ( current_user_can( 'connections_delete_entry' ) ) {
-								$bulkActions['delete'] = __( 'Delete', 'connections' );
-							}
-
-							$bulkActions = apply_filters( 'cn_manage_bulk_actions', $bulkActions );
-
-							foreach ( $bulkActions as $action => $string ) {
-								echo '<option value="', $action, '">', $string, '</option>';
-							}
-
-							echo '</select>';*/
+							echo '<input type="hidden" name="action" value="set_up_email" />';
 							echo '<input class="button-secondary action" type="submit" name="bulk_action" value="' , __( 'Start Email process', 'connections' ) , '" />';
 							echo '</div>';
 						}
