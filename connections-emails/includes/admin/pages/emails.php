@@ -259,6 +259,21 @@ function connectionsEmailsPage() {
 								echo $categoryObjects->buildCategoryRow('option', $connections->retrieve->categories(), 0, 
 																		$connections->currentUser->getFilterCategory());
 								echo '</select>';
+								
+								echo '<select class="postform" id="category" name="metabox[\'levels\']">';
+								echo '<option value="-1">', __('Show All Levels', 'connections'), '</option>';
+								$levels = array(
+									'pending'=>__('Pending', 'connections_levels' ),
+									'member'=>__('Member', 'connections_levels' ),
+									'affiliate'=>__('Affiliate', 'connections_levels' )
+								);
+								foreach($levels as $slug=>$label){
+									echo '<option value="'.$slug.'" '.selected($value, $slug, false).'>'.$label.'</option>';	
+								}
+								echo '</select>';
+								
+								
+								
 								echo $form->buildSelect('entry_type', array(
 									'all' => __('Show All Entries', 'connections'),
 									'individual' => __('Show Individuals', 'connections'),
@@ -481,7 +496,7 @@ function connectionsEmailsPage() {
 										'key' => 'cnemail',
 										'single' => TRUE
 									));
-									$last_emailed = date('m/d/Y g:ia', $metadata);
+									$last_emailed = !empty($metadata) ? date('m/d/Y g:ia', $metadata) : __('Yet to contact', 'connections');
 									echo '<strong>' . __('On', 'connections') . ':</strong> ' . $last_emailed . '<br />';
 									$user = $entry->getUser() ? get_userdata($entry->getUser()) : FALSE;
 									/**
