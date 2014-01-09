@@ -85,7 +85,7 @@ if (!class_exists('Connections_Emails')) {
          * @return array
          */
         public static function addMenu($menu) {
-            $menu[70] = array(
+            $menu[71] = array(
                 'hook' => 'emails',
                 'page_title' => 'Connections : Emails',
                 'menu_title' => 'Emails',
