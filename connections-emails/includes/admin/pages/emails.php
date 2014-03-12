@@ -85,10 +85,18 @@ function connectionsEmailsPage() {
                     $email->send();
                     // The object can be completely reset for reuse to send a completely different email.
                     $email->clear();
+					$metadata     = $entry->getMeta(array(
+							'key' => 'cnemail',
+							'single' => TRUE
+						));
+					if(empty($metadata['count'])){
+						$metadata['count']=0;	
+					}
+			
                     cnEntry_Action::meta('update', $entry->getId(), array(
                         array(
                             'key' => "cnemail",
-                            'value' => array("last"=>"".strtotime("now"),"count"=>0)
+                            'value' => array("last"=>"".strtotime("now"),"count"=>$metadata['count']+1)
                         )
                     ));
                 }
@@ -501,7 +509,7 @@ function connectionsEmailsPage() {
 										));
 									echo '<td >';
 									
-									$email_count = !empty($metadata['count']) ? date('m/d/Y g:ia', $metadata['count']) : 0;
+									$email_count = !empty($metadata['count']) ? $metadata['count'] : 0;
 									echo '<strong>' . $email_count . '<br />';
 									echo "</td> \n";
 									
