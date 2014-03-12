@@ -88,7 +88,7 @@ function connectionsEmailsPage() {
                     cnEntry_Action::meta('update', $entry->getId(), array(
                         array(
                             'key' => "cnemail",
-                            'value' => "" . strtotime("now")
+                            'value' => array("last"=>"".strtotime("now"),"count"=>0)
                         )
                     ));
                 }
@@ -387,7 +387,8 @@ function connectionsEmailsPage() {
 							<tr>
 							  <th class="manage-column column-cb check-column" scope="col"><input type="checkbox"/></th>
 							  <th scope="col" colspan="2" style="width:40%;"><?php _e('Name', 'connections'); ?></th>
-							  <th scope="col" style="width:30%;"><?php _e('Categories', 'connections'); ?></th>
+							  <th scope="col" style="width:25%;"><?php _e('Categories', 'connections'); ?></th>
+							  <th scope="col" style="width:15%;"><?php  _e('Email Count', 'connections'); ?></th>
 							  <th scope="col" style="width:20%;"><?php  _e('Last Contacted', 'connections'); ?></th>
 							</tr>
 						  </thead>
@@ -395,7 +396,8 @@ function connectionsEmailsPage() {
 							<tr>
 							  <th class="manage-column column-cb check-column" scope="col"><input type="checkbox"/></th>
 							  <th scope="col" colspan="2" style="width:40%;"><?php _e('Name', 'connections'); ?></th>
-							  <th scope="col" style="width:30%;"><?php _e('Categories', 'connections'); ?></th>
+							  <th scope="col" style="width:25%;"><?php _e('Categories', 'connections'); ?></th>
+							  <th scope="col" style="width:15%;"><?php  _e('Email Count', 'connections'); ?></th>
 							  <th scope="col" style="width:20%;"><?php  _e('Last Contacted', 'connections'); ?></th>
 							</tr>
 						  </tfoot>
@@ -491,12 +493,21 @@ function connectionsEmailsPage() {
 										unset($i);
 									}
 									echo "</td> \n";
-									echo '<td >';
+									
+									
 									$metadata     = $entry->getMeta(array(
-										'key' => 'cnemail',
-										'single' => TRUE
-									));
-									$last_emailed = !empty($metadata) ? date('m/d/Y g:ia', $metadata) : __('Yet to contact', 'connections');
+											'key' => 'cnemail',
+											'single' => TRUE
+										));
+									echo '<td >';
+									
+									$email_count = !empty($metadata['count']) ? date('m/d/Y g:ia', $metadata['count']) : 0;
+									echo '<strong>' . $email_count . '<br />';
+									echo "</td> \n";
+									
+									
+									echo '<td >';
+									$last_emailed = !empty($metadata['last']) ? date('m/d/Y g:ia', $metadata['last']) : __('Yet to contact', 'connections');
 									echo '<strong>' . __('On', 'connections') . ':</strong> ' . $last_emailed . '<br />';
 									$user = $entry->getUser() ? get_userdata($entry->getUser()) : FALSE;
 									/**
