@@ -164,10 +164,11 @@ if (!class_exists('Connections_Emails')) {
 		 * @return text
 		 */
 		public static function sanitize( $value ) {
+			$return=array();
+			$return['last'] = cnSanitize::string( 'text', $value['\'last\''] );
+			$return['count'] = $value['\'count\''];
 
-			$value=cnSanitize::string( 'text', $value );
-
-			return $value;
+			return $return;
 		}
 		
 		
