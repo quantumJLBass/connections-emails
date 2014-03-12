@@ -26,7 +26,7 @@ function connectionsEmailsPage() {
   </div>
   <h2>Connections : Emails</h2>
   <?php
-        $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : 'start';
+        $action = isset($_REQUEST['action']) && !isset($_REQUEST['filter']) ? $_REQUEST['action'] : 'start';
         switch ($action) {
             case 'send_email':
                 $subject        = $_REQUEST['sub'];
@@ -194,7 +194,7 @@ function connectionsEmailsPage() {
             case 'start':
                 $form            = new cnFormObjects();
                 $categoryObjects = new cnCategoryObjects();
-                $page            = $connections->currentUser->getFilterPage('manage');
+                $page            = $connections->currentUser->getFilterPage('connections_emails');
                 $offset          = ($page->current - 1) * $page->limit;
                 echo '<div class="wrap">';
                 echo get_screen_icon('connections');
