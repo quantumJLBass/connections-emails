@@ -154,27 +154,76 @@ if (!class_exists('Connections_Emails')) {
 
 			$fields[] = array(
 				'plugin_id' => 'connections_emails',
-				'id'        => 'reply_to',
-				'position'  => 10,
+				'id'        => 'from_email',
+				'position'  => 101,
 				'page_hook' => $settings,
 				'tab'       => 'email',
 				'section'   => 'connections_email_defaults',
-				'title'     => __('Reply to', 'connections_emails'),
+				'title'     => __('Sender Email', 'connections_emails'),
 				'desc'      => __('', 'connections_emails'),
 				'help'      => __('', 'connections_emails'),
 				'type'      => 'text',
-				'default'   => ''
+				'default'   => get_bloginfo( 'admin_email' )
+			);
+			
+			$fields[] = array(
+				'plugin_id' => 'connections_emails',
+				'id'        => 'from_name_email',
+				'position'  => 102,
+				'page_hook' => $settings,
+				'tab'       => 'email',
+				'section'   => 'connections_email_defaults',
+				'title'     => __('Sender Name', 'connections_emails'),
+				'desc'      => __('', 'connections_emails'),
+				'help'      => __('', 'connections_emails'),
+				'type'      => 'text',
+				'default'   => get_bloginfo( 'description' )
+			);
+			
+			$fields[] = array(
+				'plugin_id' => 'connections_emails',
+				'id'        => 'to_name_format_email',
+				'position'  => 103,
+				'page_hook' => $settings,
+				'tab'       => 'email',
+				'section'   => 'connections_email_defaults',
+				'title'     => __('Recipient Name Format', 'connections_emails'),
+				'desc'      => __('', 'connections_emails'),
+				'help'      => __('Look to the connections web site for more info on formats for names', 'connections_emails'),
+				'type'      => 'text',
+				'default'   => '%last%, %first%'
+			);
+			
+
+			$fields[] = array(
+				'plugin_id' => 'connections_emails',
+				'id'        => 'default_subject_email',
+				'position'  => 104,
+				'page_hook' => $settings,
+				'tab'       => 'email',
+				'section'   => 'connections_email_defaults',
+				'title'     => __('Default email subject', 'connections_emails'),
+				'desc'      => __('', 'connections_emails'),
+				'help'      => __('', 'connections_emails'),
+				'type'      => 'text',
+				'default'   => ' '
+			);						
+			$fields[] = array(
+				'plugin_id' => 'connections_emails',
+				'id'        => 'default_html_email',
+				'position'  => 105,
+				'page_hook' => $settings,
+				'tab'       => 'email',
+				'section'   => 'connections_email_defaults',
+				'title'     => __('Default HTML email', 'connections_emails'),
+				'desc'      => __('', 'connections_emails'),
+				'help'      => __('', 'connections_emails'),
+				'type'      => 'rte',
+				'default'   => ' '
 			);
 			return $fields;
 		}
 
-		
-		
-		
-		
-		
-		
-		
 		public static function registerMetabox( $metabox ) {
 			$atts = array(
 				'id'       => 'last-emailed',
