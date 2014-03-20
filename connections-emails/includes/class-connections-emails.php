@@ -25,7 +25,6 @@ if (!class_exists('Connections_Emails')) {
 				add_filter( 'cn_register_settings_tabs' , array(  $this,  'registerSettingsTabs' ) );
 				add_filter( 'cn_register_settings_sections' , array( $this, 'registerSettingsSections' ) );
 				add_filter( 'cn_register_settings_fields' , array( $this, 'registerSettingsFields' ) );
-				
 				$this->settings->init();
 			
 			// Register the metabox and fields.
@@ -151,6 +150,11 @@ if (!class_exists('Connections_Emails')) {
 			$current_user = wp_get_current_user();
 
 			$settings = 'connections_page_connections_settings';
+			$admin_email = get_bloginfo( 'admin_email' );
+			$description = get_bloginfo( 'description' );
+			/*
+			 * The General tab fields.
+			 */
 
 			$fields[] = array(
 				'plugin_id' => 'connections_emails',
@@ -160,10 +164,10 @@ if (!class_exists('Connections_Emails')) {
 				'tab'       => 'email',
 				'section'   => 'connections_email_defaults',
 				'title'     => __('Sender Email', 'connections_emails'),
-				'desc'      => __('', 'connections_emails'),
-				'help'      => __('', 'connections_emails'),
+				'desc'      => '',
+				'help'      => '',
 				'type'      => 'text',
-				'default'   => get_bloginfo( 'admin_email' )
+				'default'   => ''
 			);
 			
 			$fields[] = array(
@@ -174,10 +178,10 @@ if (!class_exists('Connections_Emails')) {
 				'tab'       => 'email',
 				'section'   => 'connections_email_defaults',
 				'title'     => __('Sender Name', 'connections_emails'),
-				'desc'      => __('', 'connections_emails'),
-				'help'      => __('', 'connections_emails'),
+				'desc'      => '',
+				'help'      => '',
 				'type'      => 'text',
-				'default'   => get_bloginfo( 'description' )
+				'default'   => ''
 			);
 			
 			$fields[] = array(
@@ -188,7 +192,7 @@ if (!class_exists('Connections_Emails')) {
 				'tab'       => 'email',
 				'section'   => 'connections_email_defaults',
 				'title'     => __('Recipient Name Format', 'connections_emails'),
-				'desc'      => __('', 'connections_emails'),
+				'desc'      => '',
 				'help'      => __('Look to the connections web site for more info on formats for names', 'connections_emails'),
 				'type'      => 'text',
 				'default'   => '%last%, %first%'
@@ -203,8 +207,8 @@ if (!class_exists('Connections_Emails')) {
 				'tab'       => 'email',
 				'section'   => 'connections_email_defaults',
 				'title'     => __('Default email subject', 'connections_emails'),
-				'desc'      => __('', 'connections_emails'),
-				'help'      => __('', 'connections_emails'),
+				'desc'      => '',
+				'help'      => '',
 				'type'      => 'text',
 				'default'   => ' '
 			);						
@@ -216,8 +220,8 @@ if (!class_exists('Connections_Emails')) {
 				'tab'       => 'email',
 				'section'   => 'connections_email_defaults',
 				'title'     => __('Default HTML email', 'connections_emails'),
-				'desc'      => __('', 'connections_emails'),
-				'help'      => __('', 'connections_emails'),
+				'desc'      => '',
+				'help'      => '',
 				'type'      => 'rte',
 				'default'   => ' '
 			);
